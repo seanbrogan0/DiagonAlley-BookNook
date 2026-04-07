@@ -1,103 +1,157 @@
-#include <Arduino.h>
+/***********************************************************************
+ * main.cpp
+ *
+ * Purpose:
+ * --------
+ * Top‑level orchestration file for Diagon Alley Book Nook firmware.
+ *
+ * Responsibilities:
+ *  - Hardware initialisation
+ *  - Per‑frame application flow
+ *  - Delegating work to domain modules:
+ *      - input     → readInputs()
+ *      - scheduler → updateScheduler()
+ *      - effects   → runEffect()
+ *      - storefront→ ambient lighting
+ *
+ * This file intentionally contains:
+ *  - NO animation logic
+ *  - NO scheduling policy
+ *  - NO input smoothing code
+ *
+ * Those concerns live in their own modules.
+ **********************************************************************/
 
+#include <Arduino.h>
 #include <FastLED.h>
 
+// ---------------------------------------------------------------------
+// Module interfaces
+// ---------------------------------------------------------------------
 #include "scheduler.h"
 #include "input.h"
 #include "storefront.h"
-#include "globals.h"
 #include "effects.h"
+#include "globals.h"
 
-//DEFINE LED PINS
-#define DATA_PIN_FB 9   // Flourish & Blotts pin
-#define DATA_PIN_OQ 10  // Olivanders & QQS pin
+// ---------------------------------------------------------------------
+// Hardware configuration
+// ---------------------------------------------------------------------
+#define DATA_PIN_FB 9    // Flourish & Blotts LEDs
+#define DATA_PIN_OQ 10   // Ollivanders & QQS LEDs
 
-//DEFINE ARRAY SIZES
-#define NUM_LEDS_FB 2   // Flourish and Blotts 2 lights
-#define NUM_LEDS_OQ 5   // 0=QQS, 1-2=Olivanders Downstairs, 3-4=Olivanders Upstairs
+#define NUM_LEDS_FB 2    // Flourish & Blotts lights
+#define NUM_LEDS_OQ 5    // 0=QQS, 1–2=Ollivanders Downstairs, 3–4=Upstairs
 
-//DEFINE ARRAYS
-CRGB ledsfb[NUM_LEDS_FB];      // FB Array
-CRGB ledsoq[NUM_LEDS_OQ];      // OQ Array
+// ---------------------------------------------------------------------
+// LED buffers (OWNED by main.cpp, shared via globals.h)
+// ---------------------------------------------------------------------
+CRGB ledsfb[NUM_LEDS_FB];
+CRGB ledsoq[NUM_LEDS_OQ];
 
-// ---------- Forward declarations ----------
+// ---------------------------------------------------------------------
+// Forward declarations (main‑local helpers only)
+// ---------------------------------------------------------------------
 float getStorefrontPercent(float potPercent);
-void updateStorefrontVars();               // single compute hub (camelCase)
+void  updateStorefrontVars();
+void  ShowColours();
 
-// Defaults / storefront helpers
-void ReadPots();
-void ShowColours();
-
+// =====================================================================
+// SETUP
+// =====================================================================
 void setup() {
   randomSeed(analogRead(A1));
 
-  initScheduler();
-  initInputs();
+  initInputs();       // initialise user input smoothing
+  initScheduler();    // initialise effect scheduling state
 
-  nextEffectTime = millis() + 60000;
-
+  // Initialise LED strips
   FastLED.addLeds<NEOPIXEL, DATA_PIN_FB>(ledsfb, NUM_LEDS_FB);
   FastLED.addLeds<NEOPIXEL, DATA_PIN_OQ>(ledsoq, NUM_LEDS_OQ);
-  // FastLED.setBrightness(255); // optional global ceiling
   FastLED.clear();
 }
 
+// =====================================================================
+// LOOP
+// =====================================================================
 void loop() {
-  
 
-  // Compute once-per-frame storefront variables (caps, flicker ranges)
+  // --------------------------------------------------
+  // 1. Always read inputs first (fresh data every frame)
+  // --------------------------------------------------
+  readInputs();
+
+  // --------------------------------------------------
+  // 2. Update derived visual parameters
+  // --------------------------------------------------
   updateStorefrontVars();
 
+  // --------------------------------------------------
+  // 3. Update scheduler state
+  // --------------------------------------------------
   updateScheduler();
 
-
-  // Render
-if (isEffectActive()) {
-  runEffect(getActiveEffect());
-}
+  // --------------------------------------------------
+  // 4. Render either spell OR idle visuals
+  // --------------------------------------------------
+  if (isEffectActive()) {
+    runEffect(getActiveEffect());
   } else {
-    readInputs();
-    runDefaultAnimation();
+    runDefaultAnimation();   // ambient base layer
   }
 
-  // Storefront updates always run
+  // --------------------------------------------------
+  // 5. Storefront overlays always run
+  // --------------------------------------------------
   EVERY_N_MILLISECONDS(40) { FlourishAndBlotts(); }
   EVERY_N_MILLISECONDS(45) { UpstairsOlivanders(); }
   QuidditchSupplies();
+
+  // --------------------------------------------------
+  // 6. Push LEDs to hardware
+  // --------------------------------------------------
   ShowColours();
 }
 
-// Dead-zone mapping (unchanged)
+// =====================================================================
+// STORE‑LEVEL BRIGHTNESS DERIVATION
+// =====================================================================
+
 float getStorefrontPercent(float potPercentIn) {
   if (potPercentIn <= 20) return 0;
   if (potPercentIn >= 80) return 100;
-  return (potPercentIn - 20) / 60.0 * 100.0;
+  return (potPercentIn - 20) / 60.0f * 100.0f;
 }
 
-// Centralized updater (called once per frame)
 void updateStorefrontVars() {
-  // Raw pot to %
-  potPercent = (float)getPotValue / 1023.0f * 100.0f;
+  // Convert potentiometer reading to percentage
+  potPercent = (float)getPotValue() / 1023.0f * 100.0f;
 
-  // Dead-zoned/clamped percent (0..100)
   storefrontPercent = getStorefrontPercent(potPercent);
 
-  // OPTION A: allow true max brightness (map 40..255)
+  // Olivanders master brightness (40–255)
   oliCap = (uint8_t)map((int)storefrontPercent, 0, 100, 40, 255);
 
-  // Ratios per storefront (tune here)
-  qsCap = (uint8_t)((uint16_t)oliCap * 60 / 100); // 60%
-  fbCap = (uint8_t)((uint16_t)oliCap * 60 / 100); // 60%
-  upCap = (uint8_t)((uint16_t)oliCap * 40 / 100); // 40%
+  // Per‑store ratios
+  qsCap = (uint8_t)((uint16_t)oliCap * 60 / 100);
+  fbCap = (uint8_t)((uint16_t)oliCap * 60 / 100);
+  upCap = (uint8_t)((uint16_t)oliCap * 40 / 100);
 
-  // Shared flicker window
-  minFlicker = map(aRAYavg, 0, 1023, 10, 50);
-  maxFlicker = map(aRAYavg, 0, 1023, 30, 80);
-  if (minFlicker > maxFlicker) { uint8_t t = minFlicker; minFlicker = maxFlicker; maxFlicker = t; }
+  // Flicker tuning based on input
+  int pot = getPotValue();
+  minFlicker = map(pot, 0, 1023, 10, 50);
+  maxFlicker = map(pot, 0, 1023, 30, 80);
+
+  if (minFlicker > maxFlicker) {
+    uint8_t t = minFlicker;
+    minFlicker = maxFlicker;
+    maxFlicker = t;
+  }
 }
 
-
-
+// =====================================================================
+// LED COMMIT
+// =====================================================================
 void ShowColours() {
   FastLED.show();
 }
