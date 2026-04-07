@@ -2,6 +2,7 @@
 
 #include <FastLED.h>
 
+#include "scheduler.h"
 #include "input.h"
 #include "storefront.h"
 #include "globals.h"
@@ -19,17 +20,6 @@
 CRGB ledsfb[NUM_LEDS_FB];      // FB Array
 CRGB ledsoq[NUM_LEDS_OQ];      // OQ Array
 
-// Effect control
-unsigned long lastResetTime = 0;
-unsigned long effectStartTime = 0;
-unsigned long currentTime;
-int callsThisHour = 0;
-int MAX_CALLS_PER_HOUR = 10;
-unsigned long nextEffectTime = 0;
-bool effectRunning = false;
-int currentEffect = -1;
-#define NUM_EFFECTS 8 // Total effects
-
 // ---------- Forward declarations ----------
 float getStorefrontPercent(float potPercent);
 void updateStorefrontVars();               // single compute hub (camelCase)
@@ -41,6 +31,7 @@ void ShowColours();
 void setup() {
   randomSeed(analogRead(A1));
 
+  initScheduler();
   initInputs();
 
   nextEffectTime = millis() + 60000;
@@ -52,37 +43,18 @@ void setup() {
 }
 
 void loop() {
-  currentTime = millis();
+  
 
   // Compute once-per-frame storefront variables (caps, flicker ranges)
   updateStorefrontVars();
 
-  // Hourly call limit reset
-  if (currentTime - lastResetTime > 3600000) {
-    callsThisHour = 0;
-    lastResetTime = currentTime;
-  }
+  updateScheduler();
 
-  // Auto-scheduler
-  if (!effectRunning && callsThisHour < MAX_CALLS_PER_HOUR && currentTime >= nextEffectTime) {
-    currentEffect = random(NUM_EFFECTS);
-    effectStartTime = currentTime;
-    effectRunning = true;
-    callsThisHour++;
-
-    unsigned long minInterval = 60000;
-    unsigned long maxInterval = 3600000 / max(1, MAX_CALLS_PER_HOUR);
-    nextEffectTime = currentTime + random(minInterval, maxInterval);
-  }
 
   // Render
-  if (effectRunning) {
-    if (currentTime - effectStartTime < 10000) {
-      runEffect(currentEffect);
-    } else {
-      effectRunning = false;
-      currentEffect = -1;
-    }
+if (isEffectActive()) {
+  runEffect(getActiveEffect());
+}
   } else {
     readInputs();
     runDefaultAnimation();
