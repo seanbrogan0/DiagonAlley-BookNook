@@ -228,7 +228,7 @@ Potential future enhancements include:
 </ul>
 
 <hr />
-## License
+<h2>License</h2>
 
 This project is licensed under the Creative Commons
 Attribution–NonCommercial 4.0 license.
