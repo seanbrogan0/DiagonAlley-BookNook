@@ -18,16 +18,6 @@
 CRGB ledsfb[NUM_LEDS_FB];      // FB Array
 CRGB ledsoq[NUM_LEDS_OQ];      // OQ Array
 
-// Gradient Palette for candles
-DEFINE_GRADIENT_PALETTE(candles_gp) {
-  0,   120, 15, 15,
-  64,  255, 50, 0,
-  128, 255,120, 0,
-  192, 220, 90, 0,
-  255, 160, 60, 0
-};
-CRGBPalette16 candlePalette;
-
 // Potentiometer smoothing
 const int aVARPIN = A0;
 const int numReadings = 10;
@@ -47,16 +37,6 @@ bool effectRunning = false;
 int currentEffect = -1;
 #define NUM_EFFECTS 8 // Total effects
 
-// ---------- Centralized per-frame storefront vars
-static float   potPercent = 0.0f;          // 0..100 from pot
-static float   storefrontPercent = 0.0f;   // dead-zoned/clamped 0..100
-static uint8_t oliCap = 180;               // Olivanders cap (Option A: 40..255)
-static uint8_t qsCap  = 108;               // QQS = ratio of oliCap
-static uint8_t fbCap  = 108;               // F&B = ratio of oliCap
-static uint8_t upCap  = 72;                // Upstairs = ratio of oliCap
-static uint8_t minFlicker = 10;            // shared flicker min
-static uint8_t maxFlicker = 80;            // shared flicker max
-
 // ---------- Forward declarations ----------
 float getStorefrontPercent(float potPercent);
 void updateStorefrontVars();               // single compute hub (camelCase)
@@ -67,7 +47,7 @@ void ShowColours();
 
 void setup() {
   randomSeed(analogRead(A1));
-  candlePalette = candles_gp;
+
   nextEffectTime = millis() + 60000;
 
   FastLED.addLeds<NEOPIXEL, DATA_PIN_FB>(ledsfb, NUM_LEDS_FB);
@@ -147,19 +127,6 @@ void updateStorefrontVars() {
   minFlicker = map(aRAYavg, 0, 1023, 10, 50);
   maxFlicker = map(aRAYavg, 0, 1023, 30, 80);
   if (minFlicker > maxFlicker) { uint8_t t = minFlicker; minFlicker = maxFlicker; maxFlicker = t; }
-}
-
-void runEffect(int index) {
-  switch (index) {
-    case 0: Lumos(); break;
-    case 1: Battle(); break;
-    case 2: WingardiumLeviosa(); break;
-    case 3: HouseColours(); break;
-    case 4: ExpectoPatronum(); break;
-    case 5: AvadaKedavra(); break;
-    case 6: Incendio(); break;
-    case 7: Sectumsempra(); break;
-  }
 }
 
 // ==================== spells ====================
