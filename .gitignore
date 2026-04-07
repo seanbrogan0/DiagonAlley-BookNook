@@ -1,0 +1,35 @@
+.pio
+.vscode/.browse.c_cpp.db*
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch
+
+
+# OS / OneDrive junk
+.DS_Store
+Thumbs.db
+~$*
+*conflicted*
+*Conflicted*
+
+# PlatformIO
+.pio/
+.vscode/ipch/
+
+# Arduino build artifacts
+*.bin
+*.elf
+*.hex
+
+# Printer / slicer output
+*.gcode
+*.bgcode
+
+# Temporary / draft exports
+*_draft.stl
+*_test.stl
+
+# Node / logs (from GitHub)
+node_modules/
+*.log
+
