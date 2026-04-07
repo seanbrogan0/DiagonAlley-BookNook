@@ -226,21 +226,3 @@ Potential future enhancements include:
   <li>Configuration presets</li>
   <li>Further memory and performance optimisation</li>
 </ul>
-
-<hr />
-
-<h2>Why This Exists</h2>
-
-<p>
-This project serves two purposes:
-</p>
-
-<ul>
-  <li>
-    A visually interesting <strong>physical display piece</strong>
-  </li>
-  <li>
-    A demonstration of <strong>clean embedded firmware architecture</strong>
-    well beyond a typical Arduino sketch
-  </li>
-</ul>
