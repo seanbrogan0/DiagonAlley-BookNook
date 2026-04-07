@@ -2,6 +2,7 @@
 
 #include <FastLED.h>
 
+#include "input.h"
 #include "storefront.h"
 #include "globals.h"
 #include "effects.h"
@@ -17,14 +18,6 @@
 //DEFINE ARRAYS
 CRGB ledsfb[NUM_LEDS_FB];      // FB Array
 CRGB ledsoq[NUM_LEDS_OQ];      // OQ Array
-
-// Potentiometer smoothing
-const int aVARPIN = A0;
-const int numReadings = 10;
-int aRAY[numReadings];
-int aRAYdex = 0;
-int aRAYtot = 0;
-int aRAYavg = 0;
 
 // Effect control
 unsigned long lastResetTime = 0;
@@ -47,6 +40,8 @@ void ShowColours();
 
 void setup() {
   randomSeed(analogRead(A1));
+
+  initInputs();
 
   nextEffectTime = millis() + 60000;
 
@@ -89,7 +84,7 @@ void loop() {
       currentEffect = -1;
     }
   } else {
-    ReadPots();
+    readInputs();
     runDefaultAnimation();
   }
 
@@ -110,7 +105,7 @@ float getStorefrontPercent(float potPercentIn) {
 // Centralized updater (called once per frame)
 void updateStorefrontVars() {
   // Raw pot to %
-  potPercent = (float)aRAYavg / 1023.0f * 100.0f;
+  potPercent = (float)getPotValue / 1023.0f * 100.0f;
 
   // Dead-zoned/clamped percent (0..100)
   storefrontPercent = getStorefrontPercent(potPercent);
@@ -129,20 +124,7 @@ void updateStorefrontVars() {
   if (minFlicker > maxFlicker) { uint8_t t = minFlicker; minFlicker = maxFlicker; maxFlicker = t; }
 }
 
-// ==================== spells ====================
 
-
-
-// ==================== Default animations & helpers ====================
-
-void ReadPots() {
-  aRAYtot = aRAYtot - aRAY[aRAYdex];
-  aRAY[aRAYdex] = analogRead(aVARPIN);
-  aRAYtot = aRAYtot + aRAY[aRAYdex];
-  aRAYdex++;
-  if (aRAYdex >= numReadings) aRAYdex = 0;
-  aRAYavg = aRAYtot / numReadings;
-}
 
 void ShowColours() {
   FastLED.show();
