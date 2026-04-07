@@ -33,6 +33,7 @@
 #include "storefront.h"
 #include "effects.h"
 #include "globals.h"
+#include "config.h"
 
 // ---------------------------------------------------------------------
 // Hardware configuration

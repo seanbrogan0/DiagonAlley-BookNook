@@ -41,4 +41,3 @@ void ExpectoPatronum();
 void AvadaKedavra();
 void Incendio();
 void Sectumsempra();
-``

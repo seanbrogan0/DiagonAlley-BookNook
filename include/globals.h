@@ -4,57 +4,51 @@
  *
  * Purpose:
  * --------
- * Declares ALL shared global state used across firmware modules.
+ * Declares SHARED RUNTIME STATE across firmware modules.
  *
- * This file exists to:
- *  - Make shared dependencies explicit
- *  - Prevent hidden coupling between .cpp files
- *  - Clearly define who OWNS data vs who USES data
+ * Rules:
+ * ------
+ * - Variables here are UPDATED during runtime
+ * - Storage lives in globals.cpp
+ * - Access is explicit via `extern`
  *
- * Rule:
- * -----
- * - Variables are DECLARED here using `extern`
- * - Variables are DEFINED exactly once in main.cpp
- *
- * This keeps linkage clean and predictable.
+ * This prevents:
+ *  - hidden dependencies
+ *  - duplicated state
+ *  - accidental shadowing
  **********************************************************************/
 
 #include <FastLED.h>
 
-// ---------------------------------------------------------------------
-// LED buffers (owned by main.cpp)
-// ---------------------------------------------------------------------
+// =====================================================================
+// LED buffers (owned by main.cpp via globals.cpp)
+// =====================================================================
 extern CRGB ledsfb[];
 extern CRGB ledsoq[];
 
-// ---------------------------------------------------------------------
-// LED strip sizes
-// ---------------------------------------------------------------------
-extern const int NUM_LEDS_FB;
-extern const int NUM_LEDS_OQ;
-
-// ---------------------------------------------------------------------
-// Effect timing
-// ---------------------------------------------------------------------
+// =====================================================================
+// Scheduler runtime state
+// =====================================================================
+extern bool effectRunning;
+extern int  currentEffect;
 extern unsigned long effectStartTime;
 
-// ---------------------------------------------------------------------
-// Brightness caps (computed once per frame)
-// ---------------------------------------------------------------------
+// =====================================================================
+// Brightness caps (updated every frame)
+// =====================================================================
 extern uint8_t oliCap;
 extern uint8_t qsCap;
 extern uint8_t fbCap;
 extern uint8_t upCap;
 
-// ---------------------------------------------------------------------
-// Flicker range (shared visual tuning)
-// ---------------------------------------------------------------------
+// =====================================================================
+// Flicker tuning (updated every frame)
+// =====================================================================
 extern uint8_t minFlicker;
 extern uint8_t maxFlicker;
 
-// ---------------------------------------------------------------------
-// Scheduler state
-// ---------------------------------------------------------------------
-extern bool effectRunning;
-extern int  currentEffect;
-``
+// =====================================================================
+// Storefront scaling
+// =====================================================================
+extern float potPercent;
+extern float storefrontPercent;

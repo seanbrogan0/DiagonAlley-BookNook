@@ -26,6 +26,7 @@
 
 #include <Arduino.h>
 
+#include "config.h"
 #include "scheduler.h"
 #include "globals.h"
 
