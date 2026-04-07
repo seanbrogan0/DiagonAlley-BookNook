@@ -44,11 +44,6 @@
 #define NUM_LEDS_FB 2    // Flourish & Blotts lights
 #define NUM_LEDS_OQ 5    // 0=QQS, 1–2=Ollivanders Downstairs, 3–4=Upstairs
 
-// ---------------------------------------------------------------------
-// LED buffers (OWNED by main.cpp, shared via globals.h)
-// ---------------------------------------------------------------------
-CRGB ledsfb[NUM_LEDS_FB];
-CRGB ledsoq[NUM_LEDS_OQ];
 
 // ---------------------------------------------------------------------
 // Forward declarations (main‑local helpers only)
