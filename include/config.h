@@ -15,10 +15,9 @@
  *  - State variables
  *  - Timers
  *  - Anything updated in loop()
- *
- * Think of this as:
- * “What kind of Book Nook am I building?”
  **********************************************************************/
+
+#include <stdint.h>   // ✅ REQUIRED for uint8_t, uint16_t, etc.
 
 // ---------------------------------------------------------------------
 // LED layout

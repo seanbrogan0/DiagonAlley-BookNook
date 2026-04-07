@@ -28,6 +28,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
+#include "config.h"
 #include "storefront.h"
 #include "globals.h"
 
