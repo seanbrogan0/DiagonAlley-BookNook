@@ -2,6 +2,9 @@
 
 #include <FastLED.h>
 
+#include "globals.h"
+#include "effects.h"
+
 //DEFINE LED PINS
 #define DATA_PIN_FB 9   // Flourish & Blotts pin
 #define DATA_PIN_OQ 10  // Olivanders & QQS pin
@@ -56,17 +59,6 @@ static uint8_t maxFlicker = 80;            // shared flicker max
 // ---------- Forward declarations ----------
 float getStorefrontPercent(float potPercent);
 void updateStorefrontVars();               // single compute hub (camelCase)
-void runEffect(int index);
-
-// spells
-void Lumos();
-void Battle();
-void WingardiumLeviosa();
-void HouseColours();
-void ExpectoPatronum();
-void AvadaKedavra();
-void Incendio();
-void Sectumsempra();
 
 // Defaults / storefront helpers
 void runDefaultAnimation();
