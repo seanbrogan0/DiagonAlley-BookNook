@@ -45,14 +45,14 @@ and are not derived from the above models.
 
 <table>
   <tr>
+    <td><img src="images/HP-BookNook-6.jpg" height="200"></td>
+    <td><img src="images/HP-BookNook-5.jpg" height="200"></td>
     <td><img src="images/HP-BookNook-1.jpg" height="200"></td>
-    <td><img src="images/HP-BookNook-2.jpg" height="200"></td>
-    <td><img src="images/HP-BookNook-3.jpg" height="200"></td>
   </tr>
   <tr>
+    <td><img src="images/HP-BookNook-2.jpg" height="200"></td>
+    <td><img src="images/HP-BookNook-3.jpg" height="200"></td>
     <td><img src="images/HP-BookNook-4.jpg" height="200"></td>
-    <td><img src="images/HP-BookNook-5.jpg" height="200"></td>
-    <td><img src="images/HP-BookNook-6.jpg" height="200"></td>
   </tr>
 </table>
 
