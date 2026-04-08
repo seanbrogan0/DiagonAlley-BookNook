@@ -16,7 +16,7 @@
 <h2>3D Model Attribution</h2>
 
 <p>
-The physical book nook enclosure and storefront facades used in this project are
+The physical book nook storefront facades used in this project are
 based on the following third‑party 3D models:
 </p>
 
@@ -27,6 +27,24 @@ Designed by @Lennart_1256584 on Printables:
 https://www.printables.com/model/582252-book-nook-diagon-alley-harry-potter
 </a>
 </p>
+
+
+<p>
+<strong>Book Nook – Diagon Alley (Harry Potter)</strong><br />
+Designed by @Lennart_1256584 on Printables:
+<a href="https://www.printables.com/model/582252-book-nook-diagon-alley-harry-potter" target="_blank">
+https://www.printables.com/model/582252-book-nook-diagon-alley-harry-potter
+</a>
+</p>
+
+<p>
+The physical enclosure is my own design including the cobblestone and brickwork pattern. This includes 
+channels for wiring the LEDs, as well as a case to house the arduino and mount it on the rear of the 
+book nook. Enclosure includes space for a power switch and a single potentiometer to control brightness.
+</p>
+
+
+
 
 <p>
 These STL files are included in this repository for convenience and to ensure
