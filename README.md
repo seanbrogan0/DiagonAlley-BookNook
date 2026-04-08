@@ -43,6 +43,7 @@ and are not derived from the above models.
 </p>
 <h1>Diagon Alley Book Nook – LED Control Firmware</h1>
 
+<p align="center">
 <table>
   <tr>
     <td><img src="images/HP-BookNook-6.jpg" height="200"></td>
@@ -55,7 +56,7 @@ and are not derived from the above models.
     <td><img src="images/HP-BookNook-4.jpg" height="200"></td>
   </tr>
 </table>
-
+</p>
 
 <p>
 An Arduino-based LED control system for a <strong>Diagon Alley–themed book nook</strong>,
