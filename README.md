@@ -39,7 +39,7 @@ and are not derived from the above models.
 </p>
 <h1>Diagon Alley Book Nook – LED Control Firmware</h1>
 
-![Alt text](images/HP-BookNook-1.jpg)<br>
+![Alt text](images/HP-BookNook-2.jpg)<br>
 ![Alt text](images/HP-BookNook-1.jpg)
 
 <p>
