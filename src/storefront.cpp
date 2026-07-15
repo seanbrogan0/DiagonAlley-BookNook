@@ -51,9 +51,11 @@ CRGBPalette16 candlePalette = candles_gp;
 // =====================================================================
 
 void runDefaultAnimation() {
-  // Base warm amber glow applied to all Olivanders LEDs.
-  // Individual storefronts will overwrite their specific LEDs afterward.
-  fill_solid(ledsoq, NUM_LEDS_OQ, CHSV(20, 95, oliCap));
+  // Base warm amber glow for the downstairs Ollivanders LEDs only
+  // (indices 1-2). LED 0 (QQS) and LEDs 3-4 (upstairs) are owned by
+  // their storefront functions, which update on their own cadence —
+  // filling them here every frame would overwrite their levels.
+  fill_solid(&ledsoq[1], 2, CHSV(20, 95, oliCap));
 }
 
 // =====================================================================

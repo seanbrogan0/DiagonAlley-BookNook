@@ -91,21 +91,14 @@ void WingardiumLeviosa() {
   const uint8_t BREATH_BPM = 56;
   const uint8_t LIFT_RAW   = 80;
 
-  // Scale effect intensity using current master brightness
-  uint8_t userScale = map(oliCap, 0, 255, 0, 255);
-
-  uint8_t breathA =
-      scale8(beatsin8(BREATH_BPM, 0, 255, 0,   0), userScale);
-  uint8_t breathB =
-      scale8(beatsin8(BREATH_BPM, 0, 255, 0, 120), userScale);
+  uint8_t breathA = beatsin8(BREATH_BPM, 0, 255, 0,   0);
+  uint8_t breathB = beatsin8(BREATH_BPM, 0, 255, 0, 120);
 
   ledsoq[1] = CHSV(H_LAVENDER, SAT_BASE, breathA);
   ledsoq[2] = CHSV(H_LAVENDER, SAT_BASE, breathB);
 
-  uint8_t lift = scale8(LIFT_RAW, userScale);
-
-  ledsoq[1] += CHSV(H_LAVENDER, SAT_BASE, lift);
-  ledsoq[2] += CHSV(H_LAVENDER, SAT_BASE, lift);
+  ledsoq[1] += CHSV(H_LAVENDER, SAT_BASE, LIFT_RAW);
+  ledsoq[2] += CHSV(H_LAVENDER, SAT_BASE, LIFT_RAW);
 }
 
 void HouseColours() {
