@@ -186,7 +186,7 @@ Controls <strong>when</strong> spell effects:
 <ul>
   <li>Start</li>
   <li>End</li>
-  <li>Are rate‑limited</li>
+  <li>Are spaced evenly through the hour, each spell playing once per cycle</li>
 </ul>
 <p>
 No LED logic exists here.

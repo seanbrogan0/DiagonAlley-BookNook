@@ -25,8 +25,8 @@ The only library dependency is FastLED, resolved automatically by PlatformIO fro
 The firmware is deliberately layered, with strict separation of concerns. Each module's header in `include/` documents its ownership rules — preserve these boundaries when making changes:
 
 - **`src/main.cpp`** — orchestration only. Owns the frame loop: read inputs → derive brightness/flicker parameters → update scheduler → render spell effect *or* ambient animation → run always-on storefront overlays → `FastLED.show()`. Also owns hardware pin assignments (data pins 9/10, pot on A0 in input.cpp). Contains no animation, scheduling, or smoothing logic.
-- **`src/scheduler.cpp`** — decides *when* spell effects start/end. Enforces `EFFECT_DURATION_MS`, `MIN_EFFECT_INTERVAL_MS`, and an hourly rate cap (`MAX_CALLS_PER_HOUR`). Picks a random effect index. No LED access.
-- **`src/effects.cpp`** — defines *what* the 8 spell effects look like (Lumos, Battle, WingardiumLeviosa, etc., dispatched via `runEffect(index)`). Writes to LED buffers only; no scheduling or hardware setup.
+- **`src/scheduler.cpp`** — decides *when* spell effects start/end. Spells are spread evenly across the hour (`EFFECT_INTERVAL_MS` ± `EFFECT_INTERVAL_JITTER_MS` between starts) and drawn from a shuffled deck so every effect plays exactly once per cycle with no repeats. Enforces `EFFECT_DURATION_MS`. No LED access.
+- **`src/effects.cpp`** — defines *what* the 11 spell effects look like (Lumos, Battle, WingardiumLeviosa, etc., dispatched via `runEffect(index)`). Writes to LED buffers only; no scheduling or hardware setup.
 - **`src/storefront.cpp`** — persistent ambient lighting (candle flicker, per-storefront layers). Runs every frame regardless of spell state; never clears LEDs globally.
 - **`src/input.cpp`** — potentiometer reading with ring-buffer smoothing. Self-contained; exposes `getPotValue()` (0–1023) and nothing visual.
 
