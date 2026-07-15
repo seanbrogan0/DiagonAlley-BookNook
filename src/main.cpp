@@ -41,8 +41,9 @@
 #define DATA_PIN_FB 9    // Flourish & Blotts LEDs
 #define DATA_PIN_OQ 10   // Ollivanders & QQS LEDs
 
-#define NUM_LEDS_FB 2    // Flourish & Blotts lights
-#define NUM_LEDS_OQ 5    // 0=QQS, 1–2=Ollivanders Downstairs, 3–4=Upstairs
+// LED counts come from config.h (NUM_LEDS_FB / NUM_LEDS_OQ) and must
+// match the buffer sizes defined in globals.cpp.
+// ledsoq layout: 0=QQS, 1–2=Ollivanders Downstairs, 3–4=Upstairs
 
 
 // ---------------------------------------------------------------------
@@ -125,18 +126,19 @@ void updateStorefrontVars() {
 
   storefrontPercent = getStorefrontPercent(potPercent);
 
-  // Olivanders master brightness (40–255)
-  oliCap = (uint8_t)map((int)storefrontPercent, 0, 100, 40, 255);
+  // Olivanders master brightness
+  oliCap = (uint8_t)map((int)storefrontPercent, 0, 100,
+                        OLI_MIN_BRIGHTNESS, OLI_MAX_BRIGHTNESS);
 
   // Per‑store ratios
-  qsCap = (uint8_t)((uint16_t)oliCap * 60 / 100);
-  fbCap = (uint8_t)((uint16_t)oliCap * 60 / 100);
-  upCap = (uint8_t)((uint16_t)oliCap * 40 / 100);
+  qsCap = (uint8_t)((uint16_t)oliCap * QS_RATIO / 100);
+  fbCap = (uint8_t)((uint16_t)oliCap * FB_RATIO / 100);
+  upCap = (uint8_t)((uint16_t)oliCap * UP_RATIO / 100);
 
   // Flicker tuning based on input
   int pot = getPotValue();
-  minFlicker = map(pot, 0, 1023, 10, 50);
-  maxFlicker = map(pot, 0, 1023, 30, 80);
+  minFlicker = map(pot, 0, 1023, FLICKER_MIN_LO, FLICKER_MIN_HI);
+  maxFlicker = map(pot, 0, 1023, FLICKER_MAX_LO, FLICKER_MAX_HI);
 
   if (minFlicker > maxFlicker) {
     uint8_t t = minFlicker;
