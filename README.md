@@ -126,10 +126,9 @@ Instead, the firmware is divided into clear, responsibility‑based modules.
 </p>
 
 <pre>
-firmware/
 ├── src/
-│   ├── main.cpp        # System orchestration &amp; control flow
-│   ├── effects.cpp     # Spell and animation effects
+│   ├── main.cpp       # System orchestration &amp; control flow
+│   ├── effects.cpp    # Spell and animation effects
 │   ├── storefront.cpp # Ambient storefront lighting
 │   ├── scheduler.cpp  # Timing and effect scheduling
 │   ├── input.cpp      # User input handling &amp; smoothing
