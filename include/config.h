@@ -28,11 +28,17 @@ static const int NUM_LEDS_OQ = 5;
 // ---------------------------------------------------------------------
 // Scheduler tuning
 // ---------------------------------------------------------------------
-static const int NUM_EFFECTS = 8;
+static const int NUM_EFFECTS = 11;
 
 static const unsigned long EFFECT_DURATION_MS = 10000;
-static const unsigned long MIN_EFFECT_INTERVAL_MS = 60000;
-static const int MAX_CALLS_PER_HOUR = 10;
+
+// Spells are spread evenly across each hour: one slot per effect,
+// with each gap jittered so start times are not metronomic.
+static const unsigned long EFFECT_INTERVAL_MS = 3600000UL / NUM_EFFECTS;
+static const unsigned long EFFECT_INTERVAL_JITTER_MS = 60000;
+
+// Delay from power-on to the first spell
+static const unsigned long FIRST_EFFECT_DELAY_MS = 60000;
 
 // ---------------------------------------------------------------------
 // Brightness tuning

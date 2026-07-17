@@ -126,10 +126,9 @@ Instead, the firmware is divided into clear, responsibility‑based modules.
 </p>
 
 <pre>
-firmware/
 ├── src/
-│   ├── main.cpp        # System orchestration &amp; control flow
-│   ├── effects.cpp     # Spell and animation effects
+│   ├── main.cpp       # System orchestration &amp; control flow
+│   ├── effects.cpp    # Spell and animation effects
 │   ├── storefront.cpp # Ambient storefront lighting
 │   ├── scheduler.cpp  # Timing and effect scheduling
 │   ├── input.cpp      # User input handling &amp; smoothing
@@ -187,7 +186,7 @@ Controls <strong>when</strong> spell effects:
 <ul>
   <li>Start</li>
   <li>End</li>
-  <li>Are rate‑limited</li>
+  <li>Are spaced evenly through the hour, each spell playing once per cycle</li>
 </ul>
 <p>
 No LED logic exists here.

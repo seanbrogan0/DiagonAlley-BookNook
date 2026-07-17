@@ -41,3 +41,6 @@ void ExpectoPatronum();
 void AvadaKedavra();
 void Incendio();
 void Sectumsempra();
+void Riddikulus();
+void Alohomora();
+void Reducto();
