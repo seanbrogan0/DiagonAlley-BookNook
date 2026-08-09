@@ -133,7 +133,9 @@ void updateStorefrontVars() {
   // Per‑store ratios
   qsCap = (uint8_t)((uint16_t)oliCap * QS_RATIO / 100);
   fbCap = (uint8_t)((uint16_t)oliCap * FB_RATIO / 100);
-  upCap = (uint8_t)((uint16_t)oliCap * UP_RATIO / 100);
+
+  uint16_t upRaw = (uint16_t)fbCap * UP_RATIO / 100;
+  upCap = (upRaw > 255) ? 255 : (uint8_t)upRaw;
 
   // Flicker tuning based on input
   int pot = getPotValue();

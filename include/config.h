@@ -49,7 +49,11 @@ static const uint8_t OLI_MAX_BRIGHTNESS = 255;
 // Storefront ratios (percentage of Olivanders)
 static const uint8_t QS_RATIO = 60;
 static const uint8_t FB_RATIO = 60;
-static const uint8_t UP_RATIO = 40;
+
+// Upstairs windows are scaled off Flourish & Blotts brightness (not
+// Olivanders). Expressed as a percentage — can exceed 100 to go
+// brighter than FB, hence uint16_t rather than uint8_t.
+static const uint16_t UP_RATIO = 10;
 
 // Flicker tuning (mapped from pot)
 static const uint8_t FLICKER_MIN_LO = 10;

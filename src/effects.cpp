@@ -86,16 +86,19 @@ void WingardiumLeviosa() {
    * Wingardium Leviosa
    *
    * Soft lavender breathing effect representing levitation.
-   * Slow, calm, ambient by design — no accent pulses.
+   * Slow, calm, ambient by design — no accent pulses. The two LEDs
+   * breathe at different rates so they drift in and out of phase
+   * instead of chasing each other at a fixed offset.
    *********************************************************************/
 
-  const uint8_t H_LAVENDER = 230;
-  const uint8_t SAT_BASE   = 200;
-  const uint8_t BREATH_BPM = 56;
-  const uint8_t LIFT_RAW   = 80;
+  const uint8_t H_LAVENDER   = 230;
+  const uint8_t SAT_BASE     = 200;
+  const uint8_t BREATH_BPM_A = 50;
+  const uint8_t BREATH_BPM_B = 37;
+  const uint8_t LIFT_RAW     = 80;
 
-  uint8_t breathA = beatsin8(BREATH_BPM, 0, 255, 0,   0);
-  uint8_t breathB = beatsin8(BREATH_BPM, 0, 255, 0, 120);
+  uint8_t breathA = beatsin8(BREATH_BPM_A, 0, 255);
+  uint8_t breathB = beatsin8(BREATH_BPM_B, 0, 255);
 
   ledsoq[1] = CHSV(H_LAVENDER, SAT_BASE, breathA);
   ledsoq[2] = CHSV(H_LAVENDER, SAT_BASE, breathB);
@@ -108,7 +111,8 @@ void HouseColours() {
   /*********************************************************************
    * House Colours
    *
-   * Cycles through Hogwarts house colours over time.
+   * Cross-fades through Hogwarts house colours over time — continuously
+   * blending toward the next house rather than hard-swapping.
    *********************************************************************/
 
   static const CRGB houses[] = {
@@ -117,12 +121,17 @@ void HouseColours() {
     CRGB::Blue,
     CRGB::Yellow
   };
+  const uint16_t HOLD_MS = 2500;
 
   unsigned long elapsed = millis() - effectStartTime;
-  uint8_t index = (elapsed / 2500) % 4;
+  uint8_t index     = (elapsed / HOLD_MS) % 4;
+  uint8_t nextIndex = (index + 1) % 4;
+  uint8_t blendAmt  = map(elapsed % HOLD_MS, 0, HOLD_MS - 1, 0, 255);
 
-  ledsoq[1] = houses[index];
-  ledsoq[2] = houses[index];
+  CRGB current = blend(houses[index], houses[nextIndex], blendAmt);
+
+  ledsoq[1] = current;
+  ledsoq[2] = current;
 }
 
 void ExpectoPatronum() {
@@ -173,18 +182,21 @@ void Incendio() {
   /*********************************************************************
    * Incendio
    *
-   * Chaotic fire flicker with occasional white-hot sparks.
+   * Chaotic fire flicker with occasional white-hot sparks. Updates are
+   * rate-limited so the flicker reads as fire rather than a strobe.
    *********************************************************************/
 
-  for (uint8_t i = 1; i <= 2; i++) {
-    if (random8() < 20) {
-      ledsoq[i] = CRGB::White;
-    } else {
-      ledsoq[i] = CRGB(
-        random(220, 255),
-        random(80, 120),
-        0
-      );
+  EVERY_N_MILLISECONDS(90) {
+    for (uint8_t i = 1; i <= 2; i++) {
+      if (random8() < 20) {
+        ledsoq[i] = CRGB::White;
+      } else {
+        ledsoq[i] = CRGB(
+          random(220, 255),
+          random(50, 85),
+          0
+        );
+      }
     }
   }
 }
@@ -225,9 +237,8 @@ void Riddikulus() {
    * Riddikulus
    *
    * A boggart forced through absurd forms: each LED holds a random
-   * saturated colour, then snaps to a new one at irregular intervals
-   * with a brief white "crack" on the change. The two LEDs always
-   * wear clashing colours.
+   * saturated colour, then snaps directly to a new one at irregular
+   * intervals. The two LEDs always wear clashing colours.
    *********************************************************************/
 
   static unsigned long seenStart  = 0;
@@ -255,14 +266,8 @@ void Riddikulus() {
     valB = random(180, 256);
   }
 
-  if (now - lastChange < 40) {
-    // The crack of the boggart transforming
-    ledsoq[1] = CRGB::White;
-    ledsoq[2] = CRGB::White;
-  } else {
-    ledsoq[1] = CHSV(hueA, 255, valA);
-    ledsoq[2] = CHSV(hueB, 255, valB);
-  }
+  ledsoq[1] = CHSV(hueA, 255, valA);
+  ledsoq[2] = CHSV(hueB, 255, valB);
 }
 
 void Alohomora() {
@@ -281,13 +286,14 @@ void Alohomora() {
     uint8_t  click = elapsed / 1000;    // 0..2
     uint16_t local = elapsed % 1000;
 
+    uint8_t peak = 120 + click * 60;    // 120, 180, 240
     uint8_t v = 0;
-    if (local < 250) {
-      // 125 ms rise, 125 ms fall
-      uint8_t peak = 120 + click * 60;  // 120, 180, 240
-      v = (local < 125)
-            ? map(local, 0, 124, 0, peak)
-            : map(local, 125, 249, peak, 0);
+    if (local < 150) {
+      v = map(local, 0, 149, 0, peak);       // 150 ms rise
+    } else if (local < 300) {
+      v = peak;                              // 150 ms hold at peak
+    } else if (local < 450) {
+      v = map(local, 300, 449, peak, 0);     // 150 ms fall
     }
 
     uint8_t hue = 30 + click * 6;       // amber drifting toward gold
@@ -301,8 +307,8 @@ void Alohomora() {
 
   } else {
     // Light spills through the opening door
-    uint8_t base = (elapsed < 7000)
-                     ? map(elapsed, 4000, 6999, 8, 255)
+    uint8_t base = (elapsed < 5500)
+                     ? map(elapsed, 4000, 5499, 8, 255)
                      : 255;
 
     uint8_t v = qsub8(base, beatsin8(12, 0, 30));
@@ -326,7 +332,7 @@ void Reducto() {
   uint32_t elapsed = millis() - effectStartTime;
 
   if (elapsed < 4000) {
-    uint8_t base       = map(elapsed, 0, 3999, 40, 220);
+    uint8_t base       = map(elapsed, 0, 3999, 100, 230);
     uint8_t trembleAmp = map(elapsed, 0, 3999, 5, 70);
     uint8_t v          = qadd8(base, random8(trembleAmp));
 
@@ -344,10 +350,12 @@ void Reducto() {
     // The final frame can land a moment past the nominal duration
     uint32_t t = (elapsed > 9999) ? 9999 : elapsed;
 
-    uint8_t ceiling = map(t, 4400, 9999, 200, 4);
+    uint8_t ceiling = map(t, 4400, 9999, 255, 30);
     uint8_t hueMax  = map(t, 4400, 9999, 24, 6);
 
-    ledsoq[1] = CHSV(random8(hueMax), 255, random8(ceiling));
-    ledsoq[2] = CHSV(random8(hueMax), 255, random8(ceiling));
+    // Bias toward the upper half of the ceiling so embers read bright,
+    // not just occasionally-bright-on-average.
+    ledsoq[1] = CHSV(random8(hueMax), 255, ceiling - random8(ceiling / 2));
+    ledsoq[2] = CHSV(random8(hueMax), 255, ceiling - random8(ceiling / 2));
   }
 }
